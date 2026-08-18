@@ -17,7 +17,7 @@ for(const onset of ONSETS) {
     const { stdout: wav1, stderr: err1 } = spawnSync("espeak-ng", ["--load", "-v", "voice.espeak", "-s", "70", "-g", "0", "-P", "0", "-p", process.env.PITCH || "50", "--stdout", inp]);
     process.stderr.write(err1);
     const duration = VOWELS.includes(onset) ? VOWEL_DURATION : ONSET_DURATION;
-    const { stdout: wav2, stderr: err2 } = spawnSync("ffmpeg", ["-i", "-", "-af", `silenceremove=start_periods=1:start_duration=0:start_threshold=-20dB:detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:start_duration=0:start_threshold=-20dB:detection=peak,aformat=dblp,areverse,afade=t=in:st=0:d=${TRANSITION / 1000},afade=t=out:st=${(duration - TRANSITION) / 1000}:d=${TRANSITION / 1000}`, "-to", (duration / 1000).toString(), "-f", "wav", "-ar", "8000", "-ac", "1", "-"], { input: wav1 });
+    const { stdout: wav2, stderr: err2 } = spawnSync("ffmpeg", ["-i", "-", "-af", `silenceremove=start_periods=1:start_duration=0:start_threshold=-100dB:detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:start_duration=0:start_threshold=-100dB:detection=peak,aformat=dblp,areverse${/*,afade=t=in:st=0:d=${TRANSITION / 1000}*/""},afade=t=out:st=${(duration - TRANSITION) / 1000}:d=${TRANSITION / 1000}`, "-to", (duration / 1000).toString(), "-f", "wav", "-ar", "8000", "-ac", "1", "-"], { input: wav1 });
     process.stderr.write(err2);
     writeFileSync(join("out", toRomaji(onset) + ".wav"), wav2);
 }
