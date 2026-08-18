@@ -219,10 +219,12 @@ void play_note(const char* lyric, int16_t pitch, uint32_t start_mibis, uint16_t 
         add_note(sfx, start_mibis, duration_mibis, pitch);
     } else {
         mm_sound_effect sfx_onset = find(lyric);
-        add_note(sfx_onset, start_mibis, duration_mibis < ONSET_TIME ? duration_mibis : ONSET_TIME, pitch);
+        uint16_t t_onset = CRATE(ONSET_TIME, pitch);
+        uint16_t t_transition = CRATE(TRANSITION_TIME, pitch);
+        add_note(sfx_onset, start_mibis, duration_mibis < t_onset ? duration_mibis : t_onset, pitch);
         mm_sound_effect sfx_vowel = find(vowel);
-        uint32_t vowel_mibis = start_mibis + ONSET_TIME - TRANSITION_TIME;
-        add_note(sfx_vowel, vowel_mibis, (duration_mibis < ONSET_TIME ? 0 : duration_mibis - ONSET_TIME) + TRANSITION_TIME, pitch);
+        uint32_t vowel_mibis = start_mibis + t_onset - t_transition * 2;
+        add_note(sfx_vowel, vowel_mibis, (duration_mibis < t_onset ? 0 : duration_mibis - t_onset) + t_transition * 3, pitch);
     }
 }
 void play_note_now(const char* lyric, int16_t pitch, uint32_t duration_mibis) {
