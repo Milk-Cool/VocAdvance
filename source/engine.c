@@ -247,3 +247,9 @@ void loop_engine() {
         }
     }
 }
+uint8_t get_max_new_notes() {
+    uint8_t o = 0;
+    for(uint8_t i = 0; i < sizeof(playing_notes) / sizeof(playing_notes[0]); i++)
+        if(!playing_notes[i].playing) o++;
+    return o;
+}
