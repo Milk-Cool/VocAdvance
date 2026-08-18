@@ -9,7 +9,8 @@
 static void vblank_handler() {
 	mmVBlank();
 	int keys_pressed, keys_released;
-	iprintf("\x1b[5;0H%d", mibis());	 
+	iprintf("\x1b[5;0Htick %d", mibis());	 
+	iprintf("\x1b[6;0Hfree %hhu", get_max_new_notes());	 
 
 	scanKeys();
 

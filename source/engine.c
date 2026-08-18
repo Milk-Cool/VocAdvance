@@ -14,19 +14,6 @@
 #define TM3D (*(volatile unsigned short*)0x0400010C)
 #define TM3CNT (*(volatile unsigned short*)0x0400010E)
 
-void init_engine() {
-	irqInit();
-
-	irqSet(IRQ_VBLANK, mmVBlank);
-	irqEnable(IRQ_VBLANK);
-    
-    mmInitDefault((mm_addr)soundbank_bin, 8);
-
-    TM2D = 0;
-    TM3D = 0;
-    TM2CNT = 0x0080;
-    TM3CNT = 0x0084;
-}
 uint32_t mibis() {
     return (((uint32_t)TM3D << 16) | TM2D) >> 14;
 }
@@ -184,6 +171,22 @@ typedef struct {
 } PlayingNote;
 static PlayingNote playing_notes[64];
 static uint8_t playing_idx;
+void init_engine() {
+	irqInit();
+
+	irqSet(IRQ_VBLANK, mmVBlank);
+	irqEnable(IRQ_VBLANK);
+    
+    mmInitDefault((mm_addr)soundbank_bin, 8);
+
+    TM2D = 0;
+    TM3D = 0;
+    TM2CNT = 0x0080;
+    TM3CNT = 0x0084;
+
+    for(uint8_t i = 0; i < sizeof(playing_notes) / sizeof(playing_notes[0]); i++)
+        playing_notes[i].playing = false;
+}
 static void add_note(mm_sound_effect sfx, uint32_t start_mibis, uint16_t duration_mibis, uint16_t pitch) {
     PlayingNote* ptr = &playing_notes[playing_idx++ % (sizeof(playing_notes) / sizeof(playing_notes[0]))];
     ptr->sfx = sfx;
