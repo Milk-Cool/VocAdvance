@@ -182,7 +182,7 @@ typedef struct {
     bool started;
     bool playing;
 } PlayingNote;
-static PlayingNote playing_notes[16];
+static PlayingNote playing_notes[64];
 static uint8_t playing_idx;
 static void add_note(mm_sound_effect sfx, uint32_t start_mibis, uint16_t duration_mibis, uint16_t pitch) {
     PlayingNote* ptr = &playing_notes[playing_idx++ % (sizeof(playing_notes) / sizeof(playing_notes[0]))];

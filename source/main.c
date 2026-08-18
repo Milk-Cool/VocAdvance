@@ -37,14 +37,20 @@ int main() {
 	iprintf("\x1b[4;0HPress B for boom sound");
 
 	init_engine();
-	play_note("pa", -12 + 0, 0, 512);
-	play_note("ke", -12 + 2, 512, 512);
-	play_note("mi", -12 + 4, 1024, 512);
-	play_note("do", -12 + 5, 1536, 512);
-	play_note("bu", -12 + 7, 2048, 512);
-	play_note("yo", -12 + 9, 2560, 512);
-	play_note("ne", -12 + 11, 3072, 512);
-	play_note("go", -12 + 12, 3584, 512);
+	play_note("ki", -12 + 0, 0, 512);
+	play_note("ra", -12 + 0, 512, 512);
+	play_note("ki", -12 + 7, 1024, 512);
+	play_note("ra", -12 + 7, 1536, 512);
+	play_note("hi", -12 + 9, 2048, 512);
+	play_note("ka", -12 + 9, 2560, 512);
+	play_note("ru", -12 + 7, 3072, 512);
+	play_note("o", -12 + 5, 4096, 512);
+	play_note("so", -12 + 5, 4608, 512);
+	play_note("ra", -12 + 4, 5120, 512);
+	play_note("no", -12 + 4, 5632, 512);
+	play_note("ho", -12 + 2, 6144, 512);
+	play_note("shi", -12 + 2, 6656, 512);
+	play_note("yo", -12 + 0, 7168, 512);
 
 	irqSet(IRQ_VBLANK, vblank_handler);
 	irqEnable(IRQ_VBLANK);
