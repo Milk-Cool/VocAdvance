@@ -9,8 +9,8 @@
 static void vblank_handler() {
 	mmVBlank();
 	int keys_pressed, keys_released;
-	iprintf("\x1b[5;0Htick %d", mibis());	 
-	iprintf("\x1b[6;0Hfree %hhu", get_max_new_notes());	 
+	iprintf("\x1b[5;0Htick %d     ", mibis());	 
+	iprintf("\x1b[6;0Hfree %hhu ", get_max_new_notes());	 
 
 	scanKeys();
 
@@ -38,20 +38,21 @@ int main() {
 	iprintf("\x1b[4;0HPress B for boom sound");
 
 	init_engine();
-	play_note("ki", -12 + 0, 0, 512);
-	play_note("ra", -12 + 0, 512, 512);
-	play_note("ki", -12 + 7, 1024, 512);
-	play_note("ra", -12 + 7, 1536, 512);
-	play_note("hi", -12 + 9, 2048, 512);
-	play_note("ka", -12 + 9, 2560, 512);
-	play_note("ru", -12 + 7, 3072, 512);
-	play_note("o", -12 + 5, 4096, 512);
-	play_note("so", -12 + 5, 4608, 512);
-	play_note("ra", -12 + 4, 5120, 512);
-	play_note("no", -12 + 4, 5632, 512);
-	play_note("ho", -12 + 2, 6144, 512);
-	play_note("shi", -12 + 2, 6656, 512);
-	play_note("yo", -12 + 0, 7168, 512);
+	play_note("ki", 0, 0, 512);
+	play_note("ra", 0, 512, 512);
+	play_note("ki", 7, 1024, 512);
+	play_note("ra", 7, 1536, 512);
+	play_note("hi", 9, 2048, 512);
+	play_note("ka", 9, 2560, 512);
+	play_note("ru", 7, 3072, 512);
+	play_note("o", 5, 4096, 512);
+	play_note("so", 5, 4608, 512);
+	play_note("ra", 4, 5120, 512);
+	play_note("no", 4, 5632, 512);
+	play_note("ho", 2, 6144, 512);
+	play_note("shi", 2, 6656, 512);
+	play_note("yo", 0, 7168, 512);
+	reset_timers();
 
 	irqSet(IRQ_VBLANK, vblank_handler);
 	irqEnable(IRQ_VBLANK);

@@ -80,7 +80,7 @@ SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 
 ifneq ($(strip $(VOICE)),)
-	export AUDIOFILES	:=	$(foreach dir,$(notdir $(wildcard $(VOICE)/*.*)),$(CURDIR)/$(VOICE)/$(dir))
+	export AUDIOFILES	:=	$(foreach dir,$(notdir $(wildcard $(VOICE)/*.*)),../$(VOICE)/$(dir))
 	BINFILES += soundbank.bin
 endif
 

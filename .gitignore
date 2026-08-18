@@ -2,6 +2,7 @@ build/
 generator/out/*
 generator/node_modules/
 generator/package-lock.json
+generator/voice.espeak
 !generator/out/.gitkeep
 *.elf
 *.gba
