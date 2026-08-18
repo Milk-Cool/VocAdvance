@@ -8,3 +8,5 @@ void play_note(const char* lyric, int16_t pitch, uint32_t start_mibis, uint16_t 
 void play_note_now(const char* lyric, int16_t pitch, uint32_t duration_mibis);
 void loop_engine();
 uint8_t get_max_new_notes();
+extern const char* tones[25];
+extern const char* syllables[143];

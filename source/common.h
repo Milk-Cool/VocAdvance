@@ -7,3 +7,10 @@
 
 #define RATE(x) (1024 * pow(2, (x) / 12.0f))
 #define CRATE(a, x) ((a) * pow(2, (x) / 12.0f))
+
+typedef struct {
+    uint16_t pos;
+    uint8_t pitch;
+    uint8_t length;
+    uint8_t syllable;
+} Note;
