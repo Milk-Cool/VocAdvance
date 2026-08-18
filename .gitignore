@@ -1,0 +1,8 @@
+build/
+generator/out/*
+generator/node_modules/
+generator/package-lock.json
+!generator/out/.gitkeep
+*.elf
+*.gba
+*.sav
