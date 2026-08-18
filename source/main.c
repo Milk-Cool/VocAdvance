@@ -51,7 +51,7 @@ int main() {
 	play_note("no", 4, 5632, 512);
 	play_note("ho", 2, 6144, 512);
 	play_note("shi", 2, 6656, 512);
-	play_note("yo", 0, 7168, 512);
+	play_note("yo", 0, 7168, 4096);
 	reset_timers();
 
 	irqSet(IRQ_VBLANK, vblank_handler);
