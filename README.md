@@ -16,6 +16,18 @@ This program for the GameBoy Advance allows you to create vocal songs with a pre
 
 Head over to the releases tab and download the latest release.
 
+## Controls
+
+|Button|Action|
+|-|-|
+|D-Pad|Move cursor|
+|A|Place or remove note|
+|B + D-Pad|Scale note|
+|L, R|Switch between tracks|
+|Select + D-Pad|Change BPM|
+|Start|Start song from cursor|
+|B + Start|Start song from beginning|
+
 ## Compiling
 
 Install [devkitPro](https://devkitpro.org/wiki/devkitPro_pacman), then install the `gba-dev` package, after that run `make`. Simple as that!
