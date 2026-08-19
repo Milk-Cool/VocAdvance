@@ -7,6 +7,7 @@
 #include "common.h"
 #include <maxmod.h>
 #include <string.h>
+#include <stdarg.h>
 
 static uint32_t frame = 0;
 static uint8_t track = 0;
@@ -16,16 +17,26 @@ static uint8_t bpm = 120;
 
 static Note tracks[4][512];
 
+static void appendf(char* buf, uint16_t* idx, const char* format, ...) {
+	va_list args;
+	va_start(args, format);
+	*idx += vsprintf(buf + *idx, format, args);
+}
+static char* buf = NULL;
+static bool track_render_lock = false;
 static void render_tracks() {
+	uint16_t idx = 0;
+	if(buf == NULL) buf = (char*)malloc(1024);
 	for(int8_t i = (pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - 1 : sizeof(tones) / sizeof(tones[0]) - 18 - 1); i >= (int8_t)(pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - 18 : 0); i--) {
-		iprintf("\x1b[%d;0H", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - i : sizeof(tones) / sizeof(tones[0]) - i - 18);
+		appendf(buf, &idx, "\x1b[%d;0H    ", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - i : sizeof(tones) / sizeof(tones[0]) - i - 18);
+		appendf(buf, &idx, "\x1b[%d;0H", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - i : sizeof(tones) / sizeof(tones[0]) - i - 18);
 		for(char* c = tones[i]; *c; c++)
-			iprintf("%c", *c == 's' && c == tones[i] + 1 ? '#' : *c);
+			appendf(buf, &idx, "%c", *c == 's' ? '#' : *c);
 
-		iprintf("\x1b[%d;4H=-------=-------=-------|", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - i : sizeof(tones) / sizeof(tones[0]) - i - 18);
+		appendf(buf, &idx, "\x1b[%d;4H=-------=-------=-------|", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - i : sizeof(tones) / sizeof(tones[0]) - i - 18);
 	}
 	if(pos_y >= 18) for(int8_t i = 7; i < 18; i++)
-		iprintf("\x1b[%d;0H                            |", i + 1);
+		appendf(buf, &idx, "\x1b[%d;0H                            |", i + 1);
 	for(uint16_t j = 0; j < sizeof(tracks[track]) / sizeof(tracks[track][0]); j++) {
 		if(tracks[track][j].length == 0) continue;
 		if(tracks[track][j].pos >= (pos_x / 24) * 24 + 24 || tracks[track][j].pos + tracks[track][j].length < (pos_x / 24) * 24) continue;
@@ -37,26 +48,31 @@ static void render_tracks() {
 		memcpy(max, syllables[tracks[track][j].syllable], strlen(syllables[tracks[track][j].syllable]));
 		max[tracks[track][j].length] = 0;
 		max[24 - tracks[track][j].pos % 24] = 0;
-		iprintf("\x1b[%hhu;%hhuH%s", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - tracks[track][j].pitch : sizeof(tones) / sizeof(tones[0]) - tracks[track][j].pitch - 18, 4 + (tracks[track][j].pos % 24), max + ((pos_x / 24) * 24 > tracks[track][j].pos ? (pos_x / 24) * 24 - tracks[track][j].pos : 0));
+		appendf(buf, &idx, "\x1b[%hhu;%hhuH%s", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - tracks[track][j].pitch : sizeof(tones) / sizeof(tones[0]) - tracks[track][j].pitch - 18, 4 + (tracks[track][j].pos % 24), max + ((pos_x / 24) * 24 > tracks[track][j].pos ? (pos_x / 24) * 24 - tracks[track][j].pos : 0));
 	}
-	iprintf("\x1b[%hhu;%hhuH#", pos_y % 18 + 1, pos_x % 24 + 4);
+	appendf(buf, &idx, "\x1b[%hhu;%hhuH#", pos_y % 18 + 1, pos_x % 24 + 4);
+	buf[idx] = 0;
+	track_render_lock = true;
+	iprintf("%s", buf);
+	track_render_lock = false;
 }
+int keys_held;
 static void vblank_handler() {
 	mmVBlank();
 	int keys_pressed, keys_released;
-	iprintf("\x1b[0;1HVocAdvance : track %hhu free %hhu ", track + 1, get_max_new_notes());
-	iprintf("\x1b[19;1HBPM = %hhu  ", bpm);
-	iprintf("\x1b[19;20HCUR = %hhu  ", pos_x / 8 + 1);
+	if(!track_render_lock) {
+		iprintf("\x1b[0;1HVocAdvance : track %hhu free %hhu ", track + 1, get_max_new_notes());
+		iprintf("\x1b[19;1HBPM = %hhu  ", bpm);
+		iprintf("\x1b[19;20HCUR = %hhu  ", pos_x / 8 + 1);
+	}
 
 	scanKeys();
 
 	keys_pressed = keysDown();
 	keys_released = keysUp();
 
-	if((keys_pressed & KEY_LEFT) && pos_x != 0) { pos_x--; render_tracks(); }
-	if((keys_pressed & KEY_RIGHT) && pos_x != UINT16_MAX) { pos_x++; render_tracks(); }
-	if((keys_pressed & KEY_UP) && pos_y != 0) { pos_y--; render_tracks(); }
-	if((keys_pressed & KEY_DOWN) && pos_y != UINT8_MAX) { pos_y++; render_tracks(); }
+	keys_held |= keys_pressed;
+	keys_held &= ~keys_released;
 
     mmFrame();
 	frame++;
@@ -117,5 +133,10 @@ int main() {
 
 	do {
 		loop_engine();
+
+		if((keys_held & KEY_LEFT) && pos_x != 0) { pos_x--; render_tracks(); }
+		if((keys_held & KEY_RIGHT) && pos_x != UINT16_MAX) { pos_x++; render_tracks(); }
+		if((keys_held & KEY_UP) && pos_y != 0) { pos_y--; render_tracks(); }
+		if((keys_held & KEY_DOWN) && pos_y != 24) { pos_y++; render_tracks(); }
 	} while( 1 );
 }
