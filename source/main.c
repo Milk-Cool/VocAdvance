@@ -244,10 +244,17 @@ int main() {
 				}
 				render_ui();
 			}
-			if((keys_held & KEY_LEFT) && !(keys_held & KEY_B) && pos_x != 0) { pos_x--; render_ui(); }
-			if((keys_held & KEY_RIGHT) && !(keys_held & KEY_B) && pos_x != UINT16_MAX) { pos_x++; render_ui(); }
-			if((keys_held & KEY_UP) && pos_y != 0) { pos_y--; render_ui(); }
-			if((keys_held & KEY_DOWN) && pos_y != 24) { pos_y++; render_ui(); }
+			if(keys_held & KEY_SELECT) {
+				if(keys_held & KEY_LEFT) { bpm--; keys_held &= ~KEY_LEFT; }
+				if(keys_held & KEY_RIGHT) { bpm++; keys_held &= ~KEY_RIGHT; }
+				if(keys_held & KEY_DOWN) { bpm -= 10; keys_held &= ~KEY_DOWN; }
+				if(keys_held & KEY_UP) { bpm += 10; keys_held &= ~KEY_UP; }
+			} else {
+				if((keys_held & KEY_LEFT) && !(keys_held & KEY_B) && pos_x != 0) { pos_x--; render_ui(); }
+				if((keys_held & KEY_RIGHT) && !(keys_held & KEY_B) && pos_x != UINT16_MAX) { pos_x++; render_ui(); }
+				if((keys_held & KEY_UP) && pos_y != 0) { pos_y--; render_ui(); }
+				if((keys_held & KEY_DOWN) && pos_y != 24) { pos_y++; render_ui(); }
+			}
 		}
 	} while( 1 );
 }
