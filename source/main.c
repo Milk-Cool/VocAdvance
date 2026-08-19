@@ -5,9 +5,13 @@
 
 #include "engine.h"
 #include "common.h"
+#include "save.h"
+
 #include <maxmod.h>
 #include <string.h>
 #include <stdarg.h>
+
+#define INIT_FLAG 0xffff
 
 #define TRACKS_N 4
 #define TRACK_NOTES_N 512
@@ -41,6 +45,12 @@ static const char* kb[13][8] = {
 	{ "pa",   "pi",   "pu",   "pe",   "po",   "pya",  "pyu",  "pyo" },
 };
 
+// only 8bit readwrites allowed
+static uint16_t pos(Note* note) {
+	uint16_t x;
+	memcpy(&x, (uint8_t*)&note->pos, sizeof(uint16_t));
+	return x;
+}
 static void appendf(char* buf, uint16_t* idx, const char* format, ...) {
 	va_list args;
 	va_start(args, format);
@@ -76,8 +86,8 @@ static void render_ui() {
 		for(uint16_t j = 0; j < TRACK_NOTES_N; j++) {
 			if(tracks[(uint16_t)track * TRACK_NOTES_N + j].length == 0) break;
 			if(!(
-				(tracks[(uint16_t)track * TRACK_NOTES_N + j].pos >= (pos_x / 24) * 24 && tracks[(uint16_t)track * TRACK_NOTES_N + j].pos < (pos_x / 24) * 24 + 24)
-				|| (tracks[(uint16_t)track * TRACK_NOTES_N + j].pos + tracks[(uint16_t)track * TRACK_NOTES_N + j].length >= (pos_x / 24) * 24 && tracks[(uint16_t)track * TRACK_NOTES_N + j].pos + tracks[(uint16_t)track * TRACK_NOTES_N + j].length < (pos_x / 24) * 24 + 24)
+				(pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j]) >= (pos_x / 24) * 24 && pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j]) < (pos_x / 24) * 24 + 24)
+				|| (pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j]) + tracks[(uint16_t)track * TRACK_NOTES_N + j].length >= (pos_x / 24) * 24 && pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j]) + tracks[(uint16_t)track * TRACK_NOTES_N + j].length < (pos_x / 24) * 24 + 24)
 			)) continue;
 			if((pos_y < 18 && tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch < sizeof(tones) / sizeof(tones[0]) - 18)
 				|| (pos_y >= 18 && tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch >= sizeof(tones) / sizeof(tones[0]) - 18)) continue;
@@ -86,8 +96,8 @@ static void render_ui() {
 			max[31] = 0;
 			memcpy(max, syllables[tracks[(uint16_t)track * TRACK_NOTES_N + j].syllable], strlen(syllables[tracks[(uint16_t)track * TRACK_NOTES_N + j].syllable]));
 			max[tracks[(uint16_t)track * TRACK_NOTES_N + j].length] = 0;
-			if((pos_x / 24) * 24 <= tracks[(uint16_t)track * TRACK_NOTES_N + j].pos) max[24 - tracks[(uint16_t)track * TRACK_NOTES_N + j].pos % 24] = 0;
-			appendf(buf, &idx, "\x1b[%hhu;%hhuH%s", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch : sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch - 18, 4 + ((pos_x / 24) * 24 > tracks[(uint16_t)track * TRACK_NOTES_N + j].pos ? 0 : tracks[(uint16_t)track * TRACK_NOTES_N + j].pos % 24), max + ((pos_x / 24) * 24 > tracks[(uint16_t)track * TRACK_NOTES_N + j].pos ? (pos_x / 24) * 24 - tracks[(uint16_t)track * TRACK_NOTES_N + j].pos : 0));
+			if((pos_x / 24) * 24 <= pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j])) max[24 - pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j]) % 24] = 0;
+			appendf(buf, &idx, "\x1b[%hhu;%hhuH%s", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch : sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch - 18, 4 + ((pos_x / 24) * 24 > pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j]) ? 0 : pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j]) % 24), max + ((pos_x / 24) * 24 > pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j]) ? (pos_x / 24) * 24 - pos(&tracks[(uint16_t)track * TRACK_NOTES_N + j]) : 0));
 		}
 		appendf(buf, &idx, "\x1b[%hhu;%hhuH#", pos_y % 18 + 1, pos_x % 24 + 4);
 	}
@@ -119,41 +129,26 @@ static void vblank_handler() {
 }
 
 int main() {
-
 	consoleDemoInit();
 
-	// ansi escape sequence to clear screen and home cursor
-	// /x1b[line;columnH
 	iprintf("\x1b[2J");
-
-	// ansi escape sequence to clear screen and home cursor
-	// /x1b[line;columnH
 	iprintf("\x1b[2J");
 
 	init_engine();
 	reset_timers();
 
-	tracks = malloc(sizeof(Note) * TRACKS_N * TRACK_NOTES_N);
+	tracks = (Note*)SAVE_ADDR; // no malloc
 
-	for(uint8_t i = 0; i < TRACKS_N; i++)
-		for(uint16_t j = 0; j < TRACK_NOTES_N; j++)
-			tracks[(uint16_t)i * TRACK_NOTES_N + j].length = 0;
-	tracks[0 * TRACK_NOTES_N + 0].length = 8;
-	tracks[0 * TRACK_NOTES_N + 0].pitch = 7;
-	tracks[0 * TRACK_NOTES_N + 0].pos = 0;
-	tracks[0 * TRACK_NOTES_N + 0].syllable = 2;
-	tracks[0 * TRACK_NOTES_N + 1].length = 8;
-	tracks[0 * TRACK_NOTES_N + 1].pitch = 7;
-	tracks[0 * TRACK_NOTES_N + 1].pos = 8;
-	tracks[0 * TRACK_NOTES_N + 1].syllable = 56;
-	tracks[0 * TRACK_NOTES_N + 2].length = 8;
-	tracks[0 * TRACK_NOTES_N + 2].pitch = 14;
-	tracks[0 * TRACK_NOTES_N + 2].pos = 16;
-	tracks[0 * TRACK_NOTES_N + 2].syllable = 2;
-	tracks[0 * TRACK_NOTES_N + 3].length = 8;
-	tracks[0 * TRACK_NOTES_N + 3].pitch = 14;
-	tracks[0 * TRACK_NOTES_N + 3].pos = 24;
-	tracks[0 * TRACK_NOTES_N + 3].syllable = 56;
+	uint8_t init_flag;
+	save_read(INIT_FLAG, &init_flag, 1);
+	if(init_flag != 143) {
+		for(uint8_t i = 0; i < TRACKS_N; i++)
+			for(uint16_t j = 0; j < TRACK_NOTES_N; j++)
+				tracks[(uint16_t)i * TRACK_NOTES_N + j].length = 0;
+		init_flag = 143;
+		save_write(INIT_FLAG, &init_flag, 1);
+	}
+
 	render_ui();
 
 	irqSet(IRQ_VBLANK, vblank_handler);
@@ -186,7 +181,7 @@ int main() {
 				render_ui();
 			} else if(keys_held & KEY_A) {
 				for(uint16_t i = 0; i < TRACK_NOTES_N; i++)
-					if(tracks[(uint16_t)track * TRACK_NOTES_N + i].length == 0 || tracks[(uint16_t)track * TRACK_NOTES_N + i].pos > pos_x) {
+					if(tracks[(uint16_t)track * TRACK_NOTES_N + i].length == 0 || pos(&tracks[(uint16_t)track * TRACK_NOTES_N + i]) > pos_x) {
 						bool flag = false;
 						for(uint8_t j = 0; j < sizeof(syllables) / sizeof(syllables[0]); j++)
 							if(!strcmp(syllables[j], kb[kb_y][kb_x])) {
@@ -195,7 +190,7 @@ int main() {
 								tracks[(uint16_t)track * TRACK_NOTES_N + i].syllable = j;
 								tracks[(uint16_t)track * TRACK_NOTES_N + i].length = 4;
 								tracks[(uint16_t)track * TRACK_NOTES_N + i].pitch = sizeof(tones) / sizeof(tones[0]) - pos_y - 1;
-								tracks[(uint16_t)track * TRACK_NOTES_N + i].pos = pos_x;
+								memcpy((uint8_t*)&tracks[(uint16_t)track * TRACK_NOTES_N + i].pos, &pos_x, sizeof(uint16_t)); // only 8bit readwrites allowed
 								break;
 							}
 						if(flag) break;
@@ -212,8 +207,8 @@ int main() {
 				for(uint16_t i = 0; i < TRACK_NOTES_N; i++) {
 					if(tracks[(uint16_t)track * TRACK_NOTES_N + i].length == 0) break;
 					if(pos_y != sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + i].pitch - 1
-						|| pos_x < tracks[(uint16_t)track * TRACK_NOTES_N + i].pos
-						|| pos_x >= tracks[(uint16_t)track * TRACK_NOTES_N + i].pos + tracks[(uint16_t)track * TRACK_NOTES_N + i].length) continue;
+						|| pos_x < pos(&tracks[(uint16_t)track * TRACK_NOTES_N + i])
+						|| pos_x >= pos(&tracks[(uint16_t)track * TRACK_NOTES_N + i]) + tracks[(uint16_t)track * TRACK_NOTES_N + i].length) continue;
 					memmove(&tracks[(uint16_t)track * TRACK_NOTES_N + i], &tracks[(uint16_t)track * TRACK_NOTES_N + i + 1], sizeof(Note) * (TRACK_NOTES_N - i - 1));
 					tracks[(track + 1) * TRACK_NOTES_N - 1].length = 0;
 					flag = true;
@@ -229,8 +224,8 @@ int main() {
 				for(uint16_t i = 0; i < TRACK_NOTES_N; i++) {
 					if(tracks[(uint16_t)track * TRACK_NOTES_N + i].length == 0) break;
 					if(pos_y != sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + i].pitch - 1
-						|| pos_x < tracks[(uint16_t)track * TRACK_NOTES_N + i].pos
-						|| pos_x >= tracks[(uint16_t)track * TRACK_NOTES_N + i].pos + tracks[(uint16_t)track * TRACK_NOTES_N + i].length) continue;
+						|| pos_x < pos(&tracks[(uint16_t)track * TRACK_NOTES_N + i])
+						|| pos_x >= pos(&tracks[(uint16_t)track * TRACK_NOTES_N + i]) + tracks[(uint16_t)track * TRACK_NOTES_N + i].length) continue;
 					if(((keys_held & KEY_RIGHT) && tracks[(uint16_t)track * TRACK_NOTES_N + i].length >= 24)) continue;
 					if(keys_held & KEY_LEFT)
 						tracks[(uint16_t)track * TRACK_NOTES_N + i].length--;
@@ -280,12 +275,12 @@ int main() {
 				bool flag = false;
 				for(uint16_t j = 0; j < TRACK_NOTES_N; j++) {
 					if(tracks[(uint16_t)i * TRACK_NOTES_N + j].length == 0) break;
-					if(tracks[(uint16_t)i * TRACK_NOTES_N + j].pos <= playing_x[i] && playing_x[i] != playing_x_start) continue;
-					if(tracks[(uint16_t)i * TRACK_NOTES_N + j].pos < playing_x_start) continue;
+					if(pos(&tracks[(uint16_t)i * TRACK_NOTES_N + j]) <= playing_x[i] && playing_x[i] != playing_x_start) continue;
+					if(pos(&tracks[(uint16_t)i * TRACK_NOTES_N + j]) < playing_x_start) continue;
 					play_note(syllables[tracks[(uint16_t)i * TRACK_NOTES_N + j].syllable], tracks[(uint16_t)i * TRACK_NOTES_N + j].pitch - 8,
-						(tracks[(uint16_t)i * TRACK_NOTES_N + j].pos - playing_x_start) * (7680.0f / bpm),
+						(pos(&tracks[(uint16_t)i * TRACK_NOTES_N + j]) - playing_x_start) * (7680.0f / bpm),
 						tracks[(uint16_t)i * TRACK_NOTES_N + j].length * (7680.0f / bpm));
-					playing_x[i] = tracks[(uint16_t)i * TRACK_NOTES_N + j].pos;
+					playing_x[i] = pos(&tracks[(uint16_t)i * TRACK_NOTES_N + j]);
 					played = true;
 					if(get_max_new_notes() == 0) { flag = true; break; }
 				}
