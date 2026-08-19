@@ -75,7 +75,10 @@ static void render_ui() {
 			appendf(buf, &idx, "\x1b[%d;0H                            |", i + 1);
 		for(uint16_t j = 0; j < TRACK_NOTES_N; j++) {
 			if(tracks[(uint16_t)track * TRACK_NOTES_N + j].length == 0) break;
-			if(tracks[(uint16_t)track * TRACK_NOTES_N + j].pos >= (pos_x / 24) * 24 + 24 || tracks[(uint16_t)track * TRACK_NOTES_N + j].pos + tracks[(uint16_t)track * TRACK_NOTES_N + j].length < (pos_x / 24) * 24) continue;
+			if(!(
+				(tracks[(uint16_t)track * TRACK_NOTES_N + j].pos >= (pos_x / 24) * 24 && tracks[(uint16_t)track * TRACK_NOTES_N + j].pos < (pos_x / 24) * 24 + 24)
+				|| (tracks[(uint16_t)track * TRACK_NOTES_N + j].pos + tracks[(uint16_t)track * TRACK_NOTES_N + j].length >= (pos_x / 24) * 24 && tracks[(uint16_t)track * TRACK_NOTES_N + j].pos + tracks[(uint16_t)track * TRACK_NOTES_N + j].length < (pos_x / 24) * 24 + 24)
+			)) continue;
 			if((pos_y < 18 && tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch < sizeof(tones) / sizeof(tones[0]) - 18)
 				|| (pos_y >= 18 && tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch >= sizeof(tones) / sizeof(tones[0]) - 18)) continue;
 			char max[32];
@@ -83,8 +86,8 @@ static void render_ui() {
 			max[31] = 0;
 			memcpy(max, syllables[tracks[(uint16_t)track * TRACK_NOTES_N + j].syllable], strlen(syllables[tracks[(uint16_t)track * TRACK_NOTES_N + j].syllable]));
 			max[tracks[(uint16_t)track * TRACK_NOTES_N + j].length] = 0;
-			max[24 - tracks[(uint16_t)track * TRACK_NOTES_N + j].pos % 24] = 0;
-			appendf(buf, &idx, "\x1b[%hhu;%hhuH%s", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch : sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch - 18, 4 + (tracks[(uint16_t)track * TRACK_NOTES_N + j].pos % 24), max + ((pos_x / 24) * 24 > tracks[(uint16_t)track * TRACK_NOTES_N + j].pos ? (pos_x / 24) * 24 - tracks[(uint16_t)track * TRACK_NOTES_N + j].pos : 0));
+			if((pos_x / 24) * 24 <= tracks[(uint16_t)track * TRACK_NOTES_N + j].pos) max[24 - tracks[(uint16_t)track * TRACK_NOTES_N + j].pos % 24] = 0;
+			appendf(buf, &idx, "\x1b[%hhu;%hhuH%s", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch : sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + j].pitch - 18, 4 + ((pos_x / 24) * 24 > tracks[(uint16_t)track * TRACK_NOTES_N + j].pos ? 0 : tracks[(uint16_t)track * TRACK_NOTES_N + j].pos % 24), max + ((pos_x / 24) * 24 > tracks[(uint16_t)track * TRACK_NOTES_N + j].pos ? (pos_x / 24) * 24 - tracks[(uint16_t)track * TRACK_NOTES_N + j].pos : 0));
 		}
 		appendf(buf, &idx, "\x1b[%hhu;%hhuH#", pos_y % 18 + 1, pos_x % 24 + 4);
 	}
