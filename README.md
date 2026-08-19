@@ -20,13 +20,14 @@ Head over to the releases tab and download the latest release.
 
 |Button|Action|
 |-|-|
-|D-Pad|Move cursor|
-|A|Place or remove note|
-|B + D-Pad|Scale note|
-|L, R|Switch between tracks|
-|Select + D-Pad|Change BPM|
-|Start|Start song from cursor|
-|B + Start|Start song from beginning|
+|<kbd>D-Pad</kbd>|Move cursor|
+|<kbd>A</kbd>|Place or remove note|
+|<kbd>B</kbd> + <kbd>D-Pad</kbd>|Scale note|
+|<kbd>L</kbd>, <kbd>R</kbd>|Switch between tracks|
+|<kbd>B</kbd> + <kbd>L</kbd>, <kbd>B</kbd> + <kbd>R</kbd>|Move cursor (by beat)|
+|<kbd>Select</kbd> + <kbd>D-Pad</kbd>|Change BPM|
+|<kbd>Start</kbd>|Start song from cursor|
+|<kbd>B</kbd> + <kbd>Start</kbd>|Start song from beginning|
 
 ## Compiling
 

@@ -235,6 +235,14 @@ int main() {
 				}
 				render_ui();
 			}
+			if((keys_held & KEY_L) && (keys_held & KEY_B)) {
+				if(pos_x >= 8) pos_x -= 8;
+				render_ui();
+			}
+			if((keys_held & KEY_R) && (keys_held & KEY_B)) {
+				if(pos_x < UINT16_MAX - 8) pos_x += 8;
+				render_ui();
+			}
 			if(keys_held & KEY_SELECT) {
 				if(keys_held & KEY_LEFT) { bpm--; keys_held &= ~KEY_LEFT; }
 				if(keys_held & KEY_RIGHT) { bpm++; keys_held &= ~KEY_RIGHT; }
@@ -255,13 +263,13 @@ int main() {
 				}
 				keys_held &= ~KEY_START;
 			}
-			if(keys_held & KEY_L) {
+			if((keys_held & KEY_L) && !(keys_held & KEY_B)) {
 				keys_held &= ~KEY_L;
 				if(track == 0) track = TRACKS_N - 1;
 				else track--;
 				render_ui();
 			}
-			if(keys_held & KEY_R) {
+			if((keys_held & KEY_R) && !(keys_held & KEY_B)) {
 				keys_held &= ~KEY_R;
 				if(track == TRACKS_N - 1) track = 0;
 				else track++;
