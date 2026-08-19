@@ -226,8 +226,8 @@ int main() {
 				}
 				if(!flag) {
 					show_kb = true;
-					keys_held &= ~KEY_A; // just in case
 				}
+				keys_held &= ~KEY_A; // just in case
 				render_ui();
 			}
 			if(((keys_held & KEY_LEFT) || (keys_held & KEY_RIGHT)) && (keys_held & KEY_B)) {
