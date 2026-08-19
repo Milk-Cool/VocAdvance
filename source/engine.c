@@ -41,7 +41,7 @@ typedef struct {
     bool started;
     bool playing;
 } PlayingNote;
-static PlayingNote playing_notes[64];
+static PlayingNote playing_notes[255];
 static uint8_t playing_idx;
 void init_engine() {
 	irqInit();
