@@ -231,6 +231,7 @@ int main() {
 					if(pos_y != sizeof(tones) / sizeof(tones[0]) - tracks[(uint16_t)track * TRACK_NOTES_N + i].pitch - 1
 						|| pos_x < tracks[(uint16_t)track * TRACK_NOTES_N + i].pos
 						|| pos_x >= tracks[(uint16_t)track * TRACK_NOTES_N + i].pos + tracks[(uint16_t)track * TRACK_NOTES_N + i].length) continue;
+					if(((keys_held & KEY_RIGHT) && tracks[(uint16_t)track * TRACK_NOTES_N + i].length >= 24)) continue;
 					if(keys_held & KEY_LEFT)
 						tracks[(uint16_t)track * TRACK_NOTES_N + i].length--;
 					else
