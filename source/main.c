@@ -275,7 +275,7 @@ int main() {
 				bool flag = false;
 				for(uint16_t j = 0; j < TRACK_NOTES_N; j++) {
 					if(tracks[(uint16_t)i * TRACK_NOTES_N + j].length == 0) break;
-					if(pos(&tracks[(uint16_t)i * TRACK_NOTES_N + j]) <= playing_x[i] && playing_x[i] != playing_x_start) continue;
+					if(pos(&tracks[(uint16_t)i * TRACK_NOTES_N + j]) <= playing_x[i]) continue;
 					if(pos(&tracks[(uint16_t)i * TRACK_NOTES_N + j]) < playing_x_start) continue;
 					play_note(syllables[tracks[(uint16_t)i * TRACK_NOTES_N + j].syllable], tracks[(uint16_t)i * TRACK_NOTES_N + j].pitch - 8,
 						(pos(&tracks[(uint16_t)i * TRACK_NOTES_N + j]) - playing_x_start) * (7680.0f / bpm),
