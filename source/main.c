@@ -256,6 +256,18 @@ int main() {
 				}
 				keys_held &= ~KEY_START;
 			}
+			if(keys_held & KEY_L) {
+				keys_held &= ~KEY_L;
+				if(track == 0) track = TRACKS_N - 1;
+				else track--;
+				render_ui();
+			}
+			if(keys_held & KEY_R) {
+				keys_held &= ~KEY_R;
+				if(track == TRACKS_N - 1) track = 0;
+				else track++;
+				render_ui();
+			}
 		}
 
 		if(playing && get_max_new_notes() > 0) {
