@@ -12,6 +12,7 @@
 #include <stdarg.h>
 
 #define INIT_FLAG 0xffff
+#define BPM_SAVE_ADDR 0xfffe
 
 #define TRACKS_N 4
 #define TRACK_NOTES_N 512
@@ -147,6 +148,9 @@ int main() {
 				tracks[(uint16_t)i * TRACK_NOTES_N + j].length = 0;
 		init_flag = 143;
 		save_write(INIT_FLAG, &init_flag, 1);
+		save_write(BPM_SAVE_ADDR, &bpm, 1);
+	} else {
+		save_read(BPM_SAVE_ADDR, &bpm, 1);
 	}
 
 	render_ui();
@@ -244,10 +248,10 @@ int main() {
 				render_ui();
 			}
 			if(keys_held & KEY_SELECT) {
-				if(keys_held & KEY_LEFT) { bpm--; keys_held &= ~KEY_LEFT; }
-				if(keys_held & KEY_RIGHT) { bpm++; keys_held &= ~KEY_RIGHT; }
-				if(keys_held & KEY_DOWN) { bpm -= 10; keys_held &= ~KEY_DOWN; }
-				if(keys_held & KEY_UP) { bpm += 10; keys_held &= ~KEY_UP; }
+				if(keys_held & KEY_LEFT) { bpm--; keys_held &= ~KEY_LEFT; save_write(BPM_SAVE_ADDR, &bpm, 1); }
+				if(keys_held & KEY_RIGHT) { bpm++; keys_held &= ~KEY_RIGHT; save_write(BPM_SAVE_ADDR, &bpm, 1); }
+				if(keys_held & KEY_DOWN) { bpm -= 10; keys_held &= ~KEY_DOWN; save_write(BPM_SAVE_ADDR, &bpm, 1); }
+				if(keys_held & KEY_UP) { bpm += 10; keys_held &= ~KEY_UP; save_write(BPM_SAVE_ADDR, &bpm, 1); }
 			} else {
 				if((keys_held & KEY_LEFT) && !(keys_held & KEY_B) && pos_x != 0) { pos_x--; render_ui(); }
 				if((keys_held & KEY_RIGHT) && !(keys_held & KEY_B) && pos_x != UINT16_MAX) { pos_x++; render_ui(); }
