@@ -114,7 +114,10 @@ static void vblank_handler() {
 	if(!ui_render_lock) {
 		iprintf("\x1b[0;0HVocAdvance : track %hhu free %hhu ", track + 1, get_max_new_notes());
 		iprintf("\x1b[19;1HBPM = %hhu  ", bpm);
-		iprintf("\x1b[19;20HCUR = %hhu  ", pos_x / 8 + 1);
+		uint8_t cur = pos_x / 8 + 1;
+		iprintf("\x1b[19;20HCUR = %hhu", cur);
+		if(cur < 10) iprintf("%s", " ");
+		if(cur < 100) iprintf("%s", " ");
 	}
 
 	scanKeys();
