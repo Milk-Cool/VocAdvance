@@ -40,7 +40,7 @@ static const char* kb[13][8] = {
 	{ "ya",   "yu",   "yo",   "wa",   NULL,   NULL,   NULL,   NULL  },
 	{ "ra",   "ri",   "ru",   "re",   "ro",   "rya",  "ryu",  "ryo" },
 	{ "ga",   "gi",   "gu",   "ge",   "go",   "gya",  "gyu",  "gyo" },
-	{ "za",   "ji",   "zu",   "ze",   "zo",   "ja",   "ju",   "jo"  },
+	{ "da",   "ji",   "zu",   "de",   "do",   "ja",   "ju",   "jo"  },
 	{ "ba",   "bi",   "bu",   "be",   "bo",   "bya",  "byu",  "byo" },
 	{ "pa",   "pi",   "pu",   "pe",   "po",   "pya",  "pyu",  "pyo" },
 };
