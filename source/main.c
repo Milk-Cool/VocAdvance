@@ -11,8 +11,8 @@
 #include <string.h>
 #include <stdarg.h>
 
-#define INIT_FLAG 0xffff
-#define BPM_SAVE_ADDR 0xfffe
+#define INIT_FLAG 0x7fff
+#define BPM_SAVE_ADDR 0x7ffe
 
 #define TRACKS_N 4
 #define TRACK_NOTES_N 512
