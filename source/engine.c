@@ -95,7 +95,11 @@ void play_note(const char* lyric, int16_t pitch, uint32_t start_mibis, uint16_t 
     strcpy(pitched_vowel, tones[pitch + 8]); strcat(pitched_vowel, "_"); strcat(pitched_vowel, vowel);
     if(!strcmp(lyric, vowel)) {
         mm_sound_effect sfx = find(pitched_lyric);
+        uint16_t t_vowel = CRATE(VOWEL_TIME, -12);
+        uint16_t t_transition = CRATE(TRANSITION_TIME, -12);
         add_note(sfx, start_mibis, duration_mibis, -12);
+        for(uint16_t i = 0; i < duration_mibis; i += t_vowel - t_transition * 2)
+            add_note(sfx, i, duration_mibis - i < t_vowel ? duration_mibis - i : t_vowel, -12);
     } else {
         mm_sound_effect sfx_onset = find(pitched_lyric);
         uint16_t t_onset = CRATE(ONSET_TIME, -12);
