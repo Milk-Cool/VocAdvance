@@ -30,7 +30,7 @@ static uint8_t kb_y = 0;
 static bool playing = false;
 static uint16_t playing_x[TRACKS_N];
 static uint16_t playing_x_start;
-static const char* kb[13][8] = {
+static const char* kb[14][8] = {
 	{ "a",    "i",    "u",    "e",    "o",    "n",    NULL,   NULL  },
 	{ "ka",   "ki",   "ku",   "ke",   "ko",   "kya",  "kyu",  "kyo" },
 	{ "sa",   "shi",  "su",   "se",   "so",   "sha",  "shu",  "sho" },
@@ -41,6 +41,7 @@ static const char* kb[13][8] = {
 	{ "ya",   "yu",   "yo",   "wa",   "wo",   NULL,   NULL,   NULL  },
 	{ "ra",   "ri",   "ru",   "re",   "ro",   "rya",  "ryu",  "ryo" },
 	{ "ga",   "gi",   "gu",   "ge",   "go",   "gya",  "gyu",  "gyo" },
+	{ "za",   "ji",   "zu",   "ze",   "zo",   "ja",   "ju",   "jo"  },
 	{ "da",   "ji",   "zu",   "de",   "do",   "ja",   "ju",   "jo"  },
 	{ "ba",   "bi",   "bu",   "be",   "bo",   "bya",  "byu",  "byo" },
 	{ "pa",   "pi",   "pu",   "pe",   "po",   "pya",  "pyu",  "pyo" },
@@ -72,7 +73,7 @@ static void render_ui() {
 			}
 			appendf(buf, &idx, "                              ");
 		}
-		for(uint8_t y = 0; y < 5; y++) appendf(buf, &idx, "                              ");
+		for(uint8_t y = 0; y < 4; y++) appendf(buf, &idx, "                              ");
 	} else {
 		for(int8_t i = (pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - 1 : sizeof(tones) / sizeof(tones[0]) - 18 - 1); i >= (int8_t)(pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - 18 : 0); i--) {
 			appendf(buf, &idx, "\x1b[%d;0H    ", pos_y < 18 ? sizeof(tones) / sizeof(tones[0]) - i : sizeof(tones) / sizeof(tones[0]) - i - 18);
@@ -177,12 +178,12 @@ int main() {
 				while(kb[kb_y][kb_x] == NULL) kb_x--;
 				render_ui();
 			} else if(keys_held & KEY_DOWN) {
-				if(kb_y == 12) kb_y = 0;
+				if(kb_y == 13) kb_y = 0;
 				else kb_y++;
 				while(kb[kb_y][kb_x] == NULL) kb_x--;
 				render_ui();
 			} else if(keys_held & KEY_UP) {
-				if(kb_y == 0) kb_y = 12;
+				if(kb_y == 0) kb_y = 13;
 				else kb_y--;
 				while(kb[kb_y][kb_x] == NULL) kb_x--;
 				render_ui();
