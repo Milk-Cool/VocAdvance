@@ -90,9 +90,9 @@ void play_note(const char* lyric, int16_t pitch, uint32_t start_mibis, uint16_t 
     char cvowel = lyric[strlen(lyric) - 1];
     const char vowel[2] = { cvowel, 0 };
     char pitched_lyric[strlen(lyric) + 5];
-    strcpy(pitched_lyric, tones[pitch + 8]); strcat(pitched_lyric, "_"); strcat(pitched_lyric, lyric);
+    strcpy(pitched_lyric, tones[pitch + 7]); strcat(pitched_lyric, "_"); strcat(pitched_lyric, lyric);
     char pitched_vowel[6];
-    strcpy(pitched_vowel, tones[pitch + 8]); strcat(pitched_vowel, "_"); strcat(pitched_vowel, vowel);
+    strcpy(pitched_vowel, tones[pitch + 7]); strcat(pitched_vowel, "_"); strcat(pitched_vowel, vowel);
     if(!strcmp(lyric, vowel)) {
         mm_sound_effect sfx = find(pitched_lyric);
         uint16_t t_vowel = CRATE(VOWEL_TIME, -12);
