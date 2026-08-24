@@ -9,6 +9,8 @@ This program for the GameBoy Advance allows you to create vocal songs with a pre
 
 - Different BPMs
 - Muiltiple tracks (4 by default)
+- Different voicebanks (via different ROMs)
+- Saving/autoloading songs
 
 > Note: this doesn't synthesize anything at runtime, it merely plays back voice clips with a bit of fade in and fade out. No magic here!
 
