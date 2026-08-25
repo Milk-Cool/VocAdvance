@@ -33,4 +33,6 @@ Head over to the releases tab and download the latest release.
 
 ## Compiling
 
-Install [devkitPro](https://devkitpro.org/wiki/devkitPro_pacman), then install the `gba-dev` package, after that run `make`. Simple as that!
+Install [devkitPro](https://devkitpro.org/wiki/devkitPro_pacman), then install the `gba-dev` package, after that run `make`.
+
+If you want to build all voicebanks, run `./build.sh` instead. Simple as that!
