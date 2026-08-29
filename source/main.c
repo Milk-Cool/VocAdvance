@@ -18,6 +18,9 @@
 #define TRACK_NOTES_N 512
 static Note* tracks;
 
+// rough estimate, won't work on super low BPMs but it's alright
+#define SAFE_NOTES_LEFT 20
+
 static uint32_t frame = 0;
 static uint8_t track = 0;
 static uint16_t pos_x = 0;
@@ -285,7 +288,7 @@ int main() {
 			}
 		}
 
-		if(playing && get_max_new_notes() > 0) {
+		if(playing && get_max_new_notes() > SAFE_NOTES_LEFT) {
 			bool played = false;
 			for(uint8_t i = 0; i < TRACKS_N; i++) {
 				bool flag = false;
@@ -298,7 +301,7 @@ int main() {
 						tracks[(uint16_t)i * TRACK_NOTES_N + j].length * (7680.0f / bpm));
 					playing_x[i] = pos(&tracks[(uint16_t)i * TRACK_NOTES_N + j]) + 1;
 					played = true;
-					if(get_max_new_notes() == 0) { flag = true; break; }
+					if(get_max_new_notes() <= SAFE_NOTES_LEFT) { flag = true; break; }
 				}
 				if(flag) break;
 			}
