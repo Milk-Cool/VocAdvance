@@ -11,6 +11,8 @@
 #include <string.h>
 #include <stdarg.h>
 
+const char text_sram[] = "SRAM_V113"; // SRAM saving
+
 #define INIT_FLAG 0x7fff
 #define BPM_SAVE_ADDR 0x7ffe
 
